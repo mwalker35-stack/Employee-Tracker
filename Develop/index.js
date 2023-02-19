@@ -74,7 +74,7 @@ function askQuestions() {
 }
 
 function viewAllEmployees() {
-    connection.query('SELECT * FROM employee;', (err, data) => {
+    connection.query('SELECT * FROM employees;', (err, data) => {
         if (err) console.log(err)
         console.log("\n")
         console.table(data)
@@ -87,59 +87,141 @@ function viewAllDepartments() {
         if (err) console.log(err)
         console.log("\n")
         console.table(data)
+        askQuestions()
     })
 
 }
 
 function viewAllRoles() {
-    connection.query('SELECT * FROM role;', (err, data) => {
+    connection.query('SELECT * FROM roles;', (err, data) => {
         if (err) console.log(err)
         console.log("\n")
         console.table(data)
+        askQuestions()
     })
 
 }
 
-function addEmployee() {
+const addDepartment = () => {
     inquirer
-    .prompt([
-        {
-            type: 'input',
-            name: 'first_name',
-            message: `what is the employee's first name?`
-        },
-        {
-            type: 'input',
-            name: 'last_name',
-            message: `what is the employee's last name?`
-        },
-        {
-            type: 'input',
-            name: 'role_id',
-            message: `what is the employee's role id?`
-        },
-        {
-            type: 'input',
-            name: 'manager_id',
-            message: `what is the employee's manager id?`
-        }
-    ]).then((data) => {
-        const sql = 'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)';
-        if(data.manager_id === ''){
-            data.manager_id = null
-        }
-        const params = [data.first_name, data.last_name, data.role_id, data.manager_id]
-        db.query(sql, params, (err, row) => {
-            if (err) {
-                console.log(err)
-            } else {
-                console.log("\n")
-                console.table(row)
-                start()
+        .prompt([
+            {
+                type: 'input',
+                name: 'department_name',
+                message: 'what is the new department name?'
             }
+        ]).then((data) => {
+            const sql = 'INSERT INTO department (department_name) VALUES (?)';
+            const params = [data.department_name]
+            connection.query(sql, params, (err, row) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log("\n")
+                    console.table(viewAllDepartments())
+                    askQuestions()
+                }
+            })
         })
-    })
+}
 
+const addEmployee = () => {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'first_name',
+                message: `what is the employee's first name?`
+            },
+            {
+                type: 'input',
+                name: 'last_name',
+                message: `what is the employee's last name?`
+            },
+            {
+                type: 'input',
+                name: 'role_id',
+                message: `what is the employee's role id?`
+            },
+            {
+                type: 'input',
+                name: 'manager_id',
+                message: `what is the employee's manager id?`
+            }
+        ]).then((data) => {
+            const sql = 'INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)';
+            if (data.manager_id === '') {
+                data.manager_id = null
+            }
+            const params = [data.first_name, data.last_name, data.role_id, data.manager_id]
+            connection.query(sql, params, (err, row) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log("\n")
+                    console.table(data)
+                    askQuestions()
+                }
+            })
+        })
+
+}
+
+const addRole = () => {
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'title',
+                message: 'what is the title of the role?'
+            }, {
+                type: 'input',
+                name: 'salary',
+                message: 'what is the salary of the role?'
+            }, {
+                type: 'input',
+                name: 'department_id',
+                message: 'what is the department_id of the role?',                
+            }
+        ]).then((data) => {
+            const sql = 'INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)';
+            const params = [data.title, data.salary, data.department_id]
+            connection.query(sql, params, (err, row) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log("\n")
+                    console.table(viewAllRoles())
+                    askQuestions()
+                }
+            })
+        })
+}
+
+const updateRole = () => {
+    let employeeID = ''
+    let roleID = ''
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'title',
+                message: 'what is the title of the role?',
+                choices:  roleChoices    
+            },
+        ]).then((data) => {
+            const sql = 'INSERT INTO roles (title, salary, department_id) VALUES (?,?,?)';
+            const params = [data.title, data.salary, data.department_id]
+            connection.query(sql, params, (err, row) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log("\n")
+                    console.table(viewAllRoles())
+                    askQuestions()
+                }
+            })
+        })
 }
 
 askQuestions() 
