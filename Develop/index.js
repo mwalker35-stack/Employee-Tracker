@@ -16,7 +16,6 @@ function askQuestions() {
             "Add department",
             "Add role",
             "Update role",
-            "Update manager",
             "Display employees by manager",
             "Delete an employee",
             "Delete a role",
@@ -48,9 +47,6 @@ function askQuestions() {
                 break;
             case "Update role":
                 updateRole();
-                break;
-            case "Update Manager":
-                updateManager();
                 break;
             case "Display employees by manager":
                 displayEmployeesByManager();
@@ -97,27 +93,6 @@ function viewAllEmployees() {
 
 }
 
-
-
-// function viewAllEmployees() {
-//     connection.query('SELECT * FROM employees;', (err, data) => {
-//         if (err) console.log(err)
-//         console.log("\n")
-//         console.table(data)
-//         askQuestions()
-//     })
-
-// }
-
-// function displayEmployeesByManager() {
-//     connection.query('SELECT * FROM employee_tracker.employees WHERE manager_id = 2;', (err, data) => {
-//         if (err) console.log(err)
-//         console.log("\n")
-//         console.table(data)
-//         askQuestions()
-//     })
-// }
-
 const displayEmployeesByManager = () => {
     inquirer
         .prompt([
@@ -128,7 +103,6 @@ const displayEmployeesByManager = () => {
             }
         ]).then((data) => {
             const sql = `SELECT employees.id, employees.first_name, employees.last_name, employees.manager_id FROM employees WHERE employees.manager_id= ${data.employee_by_manager}`
-            // const params = [data.manager_id]
             connection.query(sql, (err, row) => {
                 if (err) {
                     console.log(err)
@@ -175,6 +149,17 @@ const addDepartment = () => {
 }
 
 const addEmployee = () => {
+    let roleID = ''
+    const sql = 'SELECT id, title FROM roles'
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.log(err)
+        } else {
+            let roleInfo = results
+            const roleChoices = roleInfo.map(({ id, title }) => (({
+                name: title,
+                value: id
+            })))
     inquirer
         .prompt([
             {
@@ -188,9 +173,10 @@ const addEmployee = () => {
                 message: `what is the employee's last name?`
             },
             {
-                type: 'input',
+                type: 'list',
                 name: 'role_id',
-                message: `what is the employee's role id?`
+                message: 'what is the role of the employee?',
+                choices: roleChoices
             },
             {
                 type: 'input',
@@ -213,7 +199,8 @@ const addEmployee = () => {
                 }
             })
         })
-
+    }
+})
 }
 
 const addRole = () => {
